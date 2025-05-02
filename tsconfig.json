@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "target": "ES2023",
-    "sourceMap": true,
+    "sourceMap": true, //Bắt buộc để debug
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
