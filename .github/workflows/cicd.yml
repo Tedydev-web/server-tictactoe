@@ -1,4 +1,4 @@
-name: NPH Digital Deployment
+name: FPT Education - TicTacToe Game Deployment
 
 on:
   push:
@@ -20,7 +20,8 @@ jobs:
           script: |
             echo "🚀 Deploying nphdigital.vn..."
             cd /var/www/tictactoe/server-tictactoe
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S git pull origin master
+            # Sử dụng PAT trong URL git pull
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S git pull https://${{ secrets.GIT_TOKEN }}@github.com/Tedydev-web/server-tictactoe.git master
             echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm run build
             pm2 reload 1
             pm2 restart 1
