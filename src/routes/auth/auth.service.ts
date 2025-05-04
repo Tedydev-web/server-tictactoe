@@ -24,12 +24,12 @@ export class AuthService {
         }
       })
       return user
-    } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new ConflictException('Email Already Exits!')
       }
 
-      throw err
+      throw error
     }
   }
 
@@ -71,5 +71,36 @@ export class AuthService {
       }
     })
     return { accessToken, refreshToken }
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      //1. Kiểm tra refreshToken có hợp lệ không?
+      const { userId } = await this.tokenService.verifyRefreshToken(refreshToken)
+
+      //2. Kiểm tra refreshToken có tồn tại trong db không?
+      await this.prismaService.refreshToken.findUniqueOrThrow({
+        where: {
+          token: refreshToken
+        }
+      })
+
+      //3. Xoá refreshToken cũ
+      await this.prismaService.refreshToken.delete({
+        where: {
+          token: refreshToken
+        }
+      })
+
+      //4. Tạo mới accessToken và refreshToken
+      return this.generateTokens({ userId })
+    } catch (error) {
+      //Trường hợp đã refresh rồi, hãy thông báo cho user biết
+      //refresh Token của họ đã bị đánh cắp
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new UnauthorizedException('Refresh token has been revoked')
+      }
+      throw new UnauthorizedException()
+    }
   }
 }
