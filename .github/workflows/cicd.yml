@@ -1,0 +1,26 @@
+name: NPH Digital Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-server:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Server FPTedu-tic-tac-toe
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            echo "🚀 Deploying nphdigital.vn..."
+            cd /var/www/tictactoe/server-tictactoe
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S git pull origin master
+            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm run build
+            pm2 reload 1
+            pm2 restart 1
