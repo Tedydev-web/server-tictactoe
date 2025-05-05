@@ -17,11 +17,13 @@ export function SinglePlayerModal({ open, onOpenChange }: SinglePlayerModalProps
   const router = useRouter()
 
   const handleLocalPlay = () => {
-    router.push('/singleplayer?mode=local')
+    router.push('/singleplayer/local')
+    onOpenChange(false)
   }
 
   const handleBotPlay = () => {
-    router.push('/singleplayer?mode=bot')
+    router.push('/singleplayer/bot')
+    onOpenChange(false)
   }
 
   return (

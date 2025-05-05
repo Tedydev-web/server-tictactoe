@@ -1,5 +1,7 @@
 import { Board } from './Board'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { GameInfo } from './GameInfo'
+import { GameControl } from './GameControl'
+import { GameResult } from './GameResult'
 
 interface GameContainerProps {
   cells: ('X' | 'O' | null)[]
@@ -9,6 +11,12 @@ interface GameContainerProps {
   winningLine?: number[]
   player1Name?: string
   player2Name?: string
+  onReset: () => void
+  onUndo?: () => void
+  canUndo?: boolean
+  player1Score: number
+  player2Score: number
+  size: number
 }
 
 export function GameContainer({
@@ -17,46 +25,44 @@ export function GameContainer({
   currentPlayer,
   gameStatus,
   winningLine,
-  player1Name = 'Người chơi 1',
-  player2Name = 'Người chơi 2'
+  player1Name,
+  player2Name,
+  onReset,
+  onUndo,
+  canUndo,
+  player1Score,
+  player2Score,
+  size
 }: GameContainerProps) {
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <Card className={currentPlayer === 'X' ? 'bg-primary/10' : ''}>
-          <CardHeader>
-            <CardTitle className="text-center">X - {player1Name}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center text-2xl font-bold">
-            {cells.filter(cell => cell === 'X').length}
-          </CardContent>
-        </Card>
-        <Card className={currentPlayer === 'O' ? 'bg-primary/10' : ''}>
-          <CardHeader>
-            <CardTitle className="text-center">O - {player2Name}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center text-2xl font-bold">
-            {cells.filter(cell => cell === 'O').length}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Board 
-        cells={cells}
-        onCellClick={onCellClick}
-        winningLine={winningLine}
+    <div className="w-full">
+      <GameInfo 
+        currentPlayer={currentPlayer}
+        player1Name={player1Name}
+        player2Name={player2Name}
+        player1Score={player1Score}
+        player2Score={player2Score}
       />
 
-      {gameStatus === 'won' && (
-        <div className="mt-8 text-center text-2xl font-bold">
-          {currentPlayer === 'X' ? player1Name : player2Name} đã thắng!
-        </div>
-      )}
-      {gameStatus === 'draw' && (
-        <div className="mt-8 text-center text-2xl font-bold">
-          Hòa!
-        </div>
-      )}
+      <div className="max-w-[90vh] mx-auto">
+        <Board 
+          cells={cells}
+          onCellClick={onCellClick}
+          winningLine={winningLine}
+          size={size}
+        />
+      </div>
+
+      <GameControl 
+        onReset={onReset}
+        onUndo={onUndo}
+        canUndo={canUndo}
+      />
+
+      <GameResult 
+        status={gameStatus}
+        winner={gameStatus === 'won' ? (currentPlayer === 'X' ? player1Name : player2Name) : undefined}
+      />
     </div>
   )
 }
