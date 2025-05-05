@@ -14,8 +14,8 @@ jobs:
       - name: Deploy server
         uses: appleboy/ssh-action@master
         with:
-          host: 103.147.186.84
-          username: tedydev
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
@@ -28,6 +28,5 @@ jobs:
             echo "${{ secrets.PASSWORD }}" | sudo -S git pull origin master
             echo "${{ secrets.PASSWORD }}" | sudo -S npm install
             echo "${{ secrets.PASSWORD }}" | sudo -S npm run build
-
             # Restart PM2 with sudo
             pm2 restart 0
