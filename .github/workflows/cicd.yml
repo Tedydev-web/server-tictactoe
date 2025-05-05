@@ -1,15 +1,14 @@
-name: FPT Education - TicTacToe Game Deployment
+name: Next Deployment
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+
 jobs:
-  deploy-server:
-    if: github.ref == 'refs/heads/master'
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy Server FPTedu-tic-tac-toe
+      - name: Deploy using ssh
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -17,25 +16,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
-            echo "🚀 Deploying FPTedu-tic-tac-toe..."
             cd server-tictactoe
-            # Sử dụng PAT trong URL git pull
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S git pull https://${{ secrets.GIT_TOKEN }}@github.com/Tedydev-web/server-tictactoe.git master
-            # Sao chép .env.example thành .env nếu cần
-            if [ ! -f .env ] && [ -f .env.example ]; then
-              cp .env.example .env
-              echo "✅ Copied .env.example to .env"
-            elif [ ! -f .env.example ]; then
-              echo "❌ .env.example does not exist"
-              exit 1
-            else
-              echo "✅ .env already exists, skipping copy"
-            fi
-            # Ghi các biến môi trường từ GitHub Secrets vào .env
-            echo "PORT=3000" >> .env
-            echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> .env
-            echo "REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}" >> .env
-            echo "REFRESH_TOKEN_EXPIRES_IN=1d" >> .env
-            echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S npm run build
-            pm2 restart website || pm2 start --name website npm -- start
-            echo "✅ Deployment completed"
+            echo "${{ secrets.PASSWORD }}" | sudo -S git pull https://${{ secrets.GIT_TOKEN }}@github.com/Tedydev-web/server-tictactoe.git master
+            echo "${{ secrets.PASSWORD }}" | sudo -S npm run build
+            pm2 restart 1
