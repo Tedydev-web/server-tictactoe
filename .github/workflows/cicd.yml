@@ -13,19 +13,12 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
             echo "🚀 Deploying FPTedu-tic-tac-toe..."
             # Đi tới thư mục dự án
             cd server-tictactoe || { echo "❌ Directory server-tictactoe not found"; exit 1; }
-            # Cài đặt Node.js v18 nếu chưa có
-            if ! command -v nvm &> /dev/null; then
-              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-              source ~/.bashrc
-            fi
-            nvm install 18
-            nvm use 18
             # Bắt buộc nhận code mới
             git fetch origin master || { echo "❌ Failed to fetch code"; exit 1; }
             git reset --hard origin/master || { echo "❌ Failed to reset code"; exit 1; }
@@ -44,16 +37,11 @@ jobs:
             echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> .env
             echo "REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}" >> .env
             echo "REFRESH_TOKEN_EXPIRES_IN=7d" >> .env
-            # Cài đặt PM2 nếu chưa có
-            if ! command -v pm2 &> /dev/null; then
-              npm install -g pm2
-            fi
             # Xóa node_modules và cài lại
             rm -rf node_modules package-lock.json
             npm install
-            npm install @nestjs/cli@latest
             # Build ứng** Build ứng dụng
             npm run build || { echo "❌ Build failed"; exit 1; }
             # Khởi động lại ứng dụng
-            pm2 restart website || pm2 start --name website npm -- start
+            pm2 restart website
             echo "✅ Deployment completed"
