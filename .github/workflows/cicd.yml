@@ -20,20 +20,8 @@ jobs:
             # Đi tới thư mục dự án
             cd server-tictactoe || { echo "❌ Directory server-tictactoe not found"; exit 1; }
             # Bắt buộc nhận code mới
-            echo "${{ secrets.PASSWORD }}" | sudo -S git config --global credential.helper store
-            # Use HTTPS instead of SSH
-            REPO_URL="https://github.com/[YOUR_USERNAME]/server-tictactoe.git"
-            # Check if origin exists
-            if git remote | grep -q "^origin$"; then
-              echo "${{ secrets.PASSWORD }}" | sudo -S git remote set-url origin $REPO_URL
-            else
-              echo "${{ secrets.PASSWORD }}" | sudo -S git remote add origin $REPO_URL
-            fi
-            # Set GitHub credentials for HTTPS
-            echo "${{ secrets.PASSWORD }}" | sudo -S git config --local credential.helper '!f() { echo "username=${{ secrets.GH_USERNAME }}"; echo "password=${{ secrets.GH_TOKEN }}"; }; f'
             echo "${{ secrets.PASSWORD }}" | sudo -S git fetch origin master || { echo "❌ Failed to fetch code"; exit 1; }
             echo "${{ secrets.PASSWORD }}" | sudo -S git reset --hard origin/master || { echo "❌ Failed to reset code"; exit 1; }
-            # Remaining steps...
             # Sao chép .env.example thành .env nếu cần
             if [ ! -f .env ] && [ -f .env.example ]; then
               echo "${{ secrets.PASSWORD }}" | sudo -S cp .env.example .env
@@ -47,7 +35,7 @@ jobs:
             # Xóa node_modules và cài lại
             echo "${{ secrets.PASSWORD }}" | sudo -S rm -rf node_modules package-lock.json
             echo "${{ secrets.PASSWORD }}" | sudo -S npm install
-            # Build ứng dụng
+            # Build ứng** Build ứng dụng
             echo "${{ secrets.PASSWORD }}" | sudo -S npm run build || { echo "❌ Build failed"; exit 1; }
             # Khởi động lại ứng dụng
             pm2 restart website
