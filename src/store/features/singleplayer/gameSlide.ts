@@ -15,7 +15,8 @@ const initialState: SinglePlayerGameState = {
   player2Score: 0,
   turnStartTime: Date.now(),
   timeRemaining: TURN_TIME_LIMIT,
-  isGameStarted: false
+  isGameStarted: false,
+  isBotMode: false
 }
 
 const gameSlice = createSlice({
@@ -30,41 +31,44 @@ const gameSlice = createSlice({
       state.winningLine = undefined
       state.turnStartTime = Date.now()
       state.timeRemaining = TURN_TIME_LIMIT
-      state.isGameStarted = false // Reset game started state
+      state.isGameStarted = false
+      state.isBotMode = true // Set to true for bot game
     },
     
     makeMove: (state, action: PayloadAction<{ position: number; boardSize: number; winCondition: number }>) => {
       const { position, boardSize, winCondition } = action.payload
       
-      // Start game timer on first move
+      // Set game as started when first move is made
       if (!state.isGameStarted) {
         state.isGameStarted = true
-        state.turnStartTime = Date.now()
-        state.timeRemaining = TURN_TIME_LIMIT
       }
 
-      // Thực hiện nước đi
+      // Add move to history
+      state.moveHistory.push({
+        player: state.currentPlayer,
+        position
+      })
+
+      // Update board
       state.cells[position] = state.currentPlayer
-      state.moveHistory.push({ player: state.currentPlayer, position })
 
-      // Kiểm tra trạng thái game
-      const { status, winningLine } = checkGameState(state.cells, position, boardSize, winCondition)
-      state.gameStatus = status
-      state.winningLine = winningLine
+      // Check game state
+      const gameState = checkGameState(state.cells, position, boardSize, winCondition)
+      state.gameStatus = gameState.status
+      state.winningLine = gameState.winningLine
 
-      // Cập nhật điểm nếu thắng
-      if (status === 'won') {
+      // Update scores if game is won
+      if (gameState.status === 'won') {
         if (state.currentPlayer === 'X') {
-          state.player1Score += 1
+          state.player1Score++
         } else {
-          state.player2Score += 1
+          state.player2Score++
         }
       }
 
-      // Đổi lượt nếu game chưa kết thúc
-      if (status === 'playing') {
+      // Switch player if game continues
+      if (gameState.status === 'playing') {
         state.currentPlayer = getNextPlayer(state.currentPlayer)
-        // Reset timer for next turn
         state.turnStartTime = Date.now()
         state.timeRemaining = TURN_TIME_LIMIT
       }

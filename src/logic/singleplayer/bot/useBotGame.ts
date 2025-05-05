@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { makeMove } from '@/store/features/singleplayer/gameSlide'
@@ -19,26 +19,52 @@ export function useBotGame() {
   )
 
   const botEngineRef = useRef<BotEngine | null>(null)
+  const timerRef = useRef<NodeJS.Timeout>()
 
+  // Memoize bot move calculation
+  const calculateBotMove = useCallback(() => {
+    if (!botEngineRef.current) return
+
+    try {
+      const botMove = botEngineRef.current.calculateNextMove(
+        cells,
+        boardSize,
+        winCondition
+      )
+      dispatch(makeMove({ position: botMove, boardSize, winCondition }))
+    } catch (error) {
+      console.error('Error calculating bot move:', error)
+    }
+  }, [cells, boardSize, winCondition, dispatch])
+
+  // Initialize bot engine
   useEffect(() => {
     if (isBotEnabled && !botEngineRef.current) {
       botEngineRef.current = new BotEngine(botDifficulty)
     }
+    
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
   }, [isBotEnabled, botDifficulty])
 
+  // Update bot difficulty
   useEffect(() => {
     if (botEngineRef.current) {
       botEngineRef.current.setDifficulty(botDifficulty)
     }
   }, [botDifficulty])
 
+  // Handle bot moves
   useEffect(() => {
-    // Chỉ thực hiện nước đi của bot khi:
-    // 1. Bot được bật
-    // 2. Game đã bắt đầu
-    // 3. Đang ở chế độ bot
-    // 4. Đến lượt bot (O)
-    // 5. Game đang chạy
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    // Check conditions for bot move
     if (
       isBotEnabled &&
       isGameStarted &&
@@ -47,28 +73,22 @@ export function useBotGame() {
       gameStatus === 'playing' &&
       botEngineRef.current
     ) {
-      // Thêm delay để tạo cảm giác bot đang "suy nghĩ"
-      const timer = setTimeout(() => {
-        const botMove = botEngineRef.current!.calculateNextMove(
-          cells,
-          boardSize,
-          winCondition
-        )
-        dispatch(makeMove({ position: botMove, boardSize, winCondition }))
-      }, 500)
+      // Add delay for "thinking" animation
+      timerRef.current = setTimeout(calculateBotMove, 500)
+    }
 
-      return () => clearTimeout(timer)
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
     }
   }, [
-    cells,
-    currentPlayer,
-    gameStatus,
+    isBotEnabled,
     isGameStarted,
     isBotMode,
-    isBotEnabled,
-    boardSize,
-    winCondition,
-    dispatch
+    currentPlayer,
+    gameStatus,
+    calculateBotMove
   ])
 
   return null

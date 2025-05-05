@@ -4,11 +4,9 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { GameContainer } from '@/components/game/GameContainer'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BotDifficulty } from '@/types/game'
 import { RootState } from '@/store/store'
 import { initializeGame, makeMove, undoMove, resetGame } from '@/store/features/singleplayer/gameSlide'
-import { setBotDifficulty } from '@/store/features/singleplayer/settingSlide'
+import { toggleBot } from '@/store/features/singleplayer/settingSlide'
 import { useBotGame } from '@/logic/singleplayer/bot/useBotGame'
 
 export default function BotGamePage() {
@@ -22,16 +20,17 @@ export default function BotGamePage() {
     moveHistory
   } = useSelector((state: RootState) => state.singleplayer.game)
   
-  const { boardSize, winCondition, allowUndo, botDifficulty } = useSelector(
+  const { boardSize, winCondition, allowUndo } = useSelector(
     (state: RootState) => state.singleplayer.settings
   )
 
   // Sử dụng bot hook
   useBotGame()
 
-  // Khởi tạo game khi component mount
+  // Khởi tạo game và bật bot khi component mount
   useEffect(() => {
     dispatch(initializeGame(boardSize))
+    dispatch(toggleBot()) // Enable bot when component mounts
   }, [dispatch, boardSize])
 
   const handleCellClick = (position: number) => {
@@ -48,30 +47,14 @@ export default function BotGamePage() {
     dispatch(resetGame())
   }
 
-  const handleDifficultyChange = (value: string) => {
-    dispatch(setBotDifficulty(value as BotDifficulty))
-  }
-
   return (
     <div className="space-y-8">
       <Card className="overflow-x-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Bot Game</CardTitle>
-            <CardDescription>
-              Play against AI bot
-            </CardDescription>
-          </div>
-          <Select value={botDifficulty} onValueChange={handleDifficultyChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select difficulty" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={BotDifficulty.EASY}>Easy</SelectItem>
-              <SelectItem value={BotDifficulty.MEDIUM}>Medium</SelectItem>
-              <SelectItem value={BotDifficulty.HARD}>Hard</SelectItem>
-            </SelectContent>
-          </Select>
+        <CardHeader>
+          <CardTitle>Bot Game</CardTitle>
+          <CardDescription>
+            Play against AI bot (Hard Mode)
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <GameContainer 

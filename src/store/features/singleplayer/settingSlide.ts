@@ -5,7 +5,7 @@ export const DEFAULT_SETTINGS: SinglePlayerSettings = {
   boardSize: 30,
   winCondition: 5,
   allowUndo: true,
-  botDifficulty: BotDifficulty.MEDIUM,
+  botDifficulty: BotDifficulty.HARD,
   isBotEnabled: false
 }
 
@@ -19,13 +19,11 @@ const settingSlice = createSlice({
     resetSettings: () => DEFAULT_SETTINGS,
     toggleBot: (state) => {
       state.isBotEnabled = !state.isBotEnabled
-    },
-    setBotDifficulty: (state, action: PayloadAction<BotDifficulty>) => {
-      state.botDifficulty = action.payload
+      state.botDifficulty = BotDifficulty.HARD
     }
   }
 })
 
-export const { updateSettings, resetSettings, toggleBot, setBotDifficulty } = settingSlice.actions
+export const { updateSettings, resetSettings, toggleBot } = settingSlice.actions
 
 export default settingSlice.reducer
