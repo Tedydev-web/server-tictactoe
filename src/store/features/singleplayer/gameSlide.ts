@@ -41,6 +41,8 @@ const gameSlice = createSlice({
       // Set game as started when first move is made
       if (!state.isGameStarted) {
         state.isGameStarted = true
+        state.turnStartTime = Date.now()
+        state.timeRemaining = TURN_TIME_LIMIT
       }
 
       // Add move to history
