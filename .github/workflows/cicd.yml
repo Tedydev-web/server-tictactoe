@@ -21,6 +21,27 @@ jobs:
           script: |
             echo "🚀 Deploying server"
             cd server-tictactoe
+
+            # Set the correct repository URL
+            REPO_URL="https://github.com/Tedydev-web/server-tictactoe.git"
+
+            # Check current remote URL
+            echo "Current remote URL:"
+            git remote -v
+
+            # Update the remote URL if needed
+            echo "${{ secrets.PASSWORD }}" | sudo -S git remote set-url origin $REPO_URL
+
+            # Configure Git credentials if using HTTPS
+            echo "${{ secrets.PASSWORD }}" | sudo -S git config --local credential.helper store
+
+            # If you have GitHub credentials as secrets, use them
+            if [[ -n "${{ secrets.GH_USERNAME }}" && -n "${{ secrets.GH_TOKEN }}" ]]; then
+              echo "https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
+              echo "${{ secrets.PASSWORD }}" | sudo -S chmod 600 ~/.git-credentials
+            fi
+
+            # Pull from the correct repository
             echo "${{ secrets.PASSWORD }}" | sudo -S git pull origin master
             echo "${{ secrets.PASSWORD }}" | sudo -S npm install
             echo "${{ secrets.PASSWORD }}" | sudo -S npm run build
