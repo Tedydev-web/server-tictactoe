@@ -13,8 +13,9 @@ const initialState: SinglePlayerGameState = {
   moveHistory: [],
   player1Score: 0,
   player2Score: 0,
-  turnStartTime: Date.now(), // Add turn start time
-  timeRemaining: TURN_TIME_LIMIT, // Add time remaining
+  turnStartTime: Date.now(),
+  timeRemaining: TURN_TIME_LIMIT,
+  isGameStarted: false
 }
 
 const gameSlice = createSlice({
@@ -29,11 +30,19 @@ const gameSlice = createSlice({
       state.winningLine = undefined
       state.turnStartTime = Date.now()
       state.timeRemaining = TURN_TIME_LIMIT
+      state.isGameStarted = false // Reset game started state
     },
     
     makeMove: (state, action: PayloadAction<{ position: number; boardSize: number; winCondition: number }>) => {
       const { position, boardSize, winCondition } = action.payload
       
+      // Start game timer on first move
+      if (!state.isGameStarted) {
+        state.isGameStarted = true
+        state.turnStartTime = Date.now()
+        state.timeRemaining = TURN_TIME_LIMIT
+      }
+
       // Thực hiện nước đi
       state.cells[position] = state.currentPlayer
       state.moveHistory.push({ player: state.currentPlayer, position })
@@ -68,6 +77,11 @@ const gameSlice = createSlice({
         state.currentPlayer = lastMove.player
         state.gameStatus = 'playing'
         state.winningLine = undefined
+        
+        // If undoing first move, reset game started state
+        if (state.moveHistory.length === 0) {
+          state.isGameStarted = false
+        }
       }
     },
 
@@ -77,6 +91,7 @@ const gameSlice = createSlice({
       state.gameStatus = 'playing'
       state.moveHistory = []
       state.winningLine = undefined
+      state.isGameStarted = false // Reset game started state
     },
 
     resetScores: (state) => {
@@ -85,11 +100,13 @@ const gameSlice = createSlice({
     },
 
     updateTimeRemaining: (state, action: PayloadAction<number>) => {
-      state.timeRemaining = action.payload
+      if (state.isGameStarted) { // Only update time if game has started
+        state.timeRemaining = action.payload
+      }
     },
 
     handleTimeExpired: (state) => {
-      if (state.gameStatus === 'playing') {
+      if (state.gameStatus === 'playing' && state.isGameStarted) { // Only handle expiry if game has started
         state.currentPlayer = getNextPlayer(state.currentPlayer)
         state.turnStartTime = Date.now()
         state.timeRemaining = TURN_TIME_LIMIT

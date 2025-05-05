@@ -20,12 +20,12 @@ export function GameInfo({
   player2Score
 }: GameInfoProps) {
   const dispatch = useDispatch()
-  const { timeRemaining, gameStatus } = useSelector((state: RootState) => state.singleplayer.game)
+  const { timeRemaining, gameStatus, isGameStarted } = useSelector((state: RootState) => state.singleplayer.game)
 
   useEffect(() => {
     let timer: NodeJS.Timeout
 
-    if (gameStatus === 'playing') {
+    if (gameStatus === 'playing' && isGameStarted) {
       timer = setInterval(() => {
         if (timeRemaining <= 0) {
           dispatch(handleTimeExpired())
@@ -40,7 +40,7 @@ export function GameInfo({
         clearInterval(timer)
       }
     }
-  }, [timeRemaining, gameStatus, dispatch])
+  }, [timeRemaining, gameStatus, isGameStarted, dispatch])
 
   const formatTime = (seconds: number) => {
     return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`
@@ -58,9 +58,11 @@ export function GameInfo({
             {currentPlayer === 'X' && (
               <>
                 Your turn
-                <div className="text-lg font-semibold text-primary">
-                  {formatTime(timeRemaining)}
-                </div>
+                {isGameStarted && (
+                  <div className="text-lg font-semibold text-primary">
+                    {formatTime(timeRemaining)}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -77,9 +79,11 @@ export function GameInfo({
             {currentPlayer === 'O' && (
               <>
                 Your turn
-                <div className="text-lg font-semibold text-primary">
-                  {formatTime(timeRemaining)}
-                </div>
+                {isGameStarted && (
+                  <div className="text-lg font-semibold text-primary">
+                    {formatTime(timeRemaining)}
+                  </div>
+                )}
               </>
             )}
           </div>

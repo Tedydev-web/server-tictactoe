@@ -21,6 +21,7 @@ export interface SinglePlayerGameState {
   player2Score: number
   turnStartTime: number
   timeRemaining: number
+  isGameStarted: boolean
 }
 
 // Settings cho game singleplayer
