@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { ConflictException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
+import { LoginBodyDTO } from 'src/routes/auth/auth.dto'
+import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import { LoginBodyDTO } from './auth.dto'
 import { TokenService } from 'src/shared/services/token.service'
-import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 
 @Injectable()
 export class AuthService {
@@ -26,9 +25,8 @@ export class AuthService {
       return user
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
-        throw new ConflictException('Email Already Exits!')
+        throw new ConflictException('Email already exists')
       }
-
       throw error
     }
   }
@@ -59,15 +57,15 @@ export class AuthService {
 
   async generateTokens(payload: { userId: number }) {
     const [accessToken, refreshToken] = await Promise.all([
-      this.tokenService.signAccessToken(payload), //StateLess
-      this.tokenService.signRefreshToken(payload) //StateFull
+      this.tokenService.signAccessToken(payload),
+      this.tokenService.signRefreshToken(payload)
     ])
-    const decodeRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
+    const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
     await this.prismaService.refreshToken.create({
       data: {
         token: refreshToken,
         userId: payload.userId,
-        expiresAt: new Date(decodeRefreshToken.exp * 1000)
+        expiresAt: new Date(decodedRefreshToken.exp * 1000)
       }
     })
     return { accessToken, refreshToken }
@@ -75,28 +73,46 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     try {
-      //1. Kiểm tra refreshToken có hợp lệ không?
+      // 1. Kiểm tra refreshToken có hợp lệ không
       const { userId } = await this.tokenService.verifyRefreshToken(refreshToken)
-
-      //2. Kiểm tra refreshToken có tồn tại trong db không?
+      // 2. Kiểm tra refreshToken có tồn tại trong database không
       await this.prismaService.refreshToken.findUniqueOrThrow({
         where: {
           token: refreshToken
         }
       })
-
-      //3. Xoá refreshToken cũ
+      // 3. Xóa refreshToken cũ
       await this.prismaService.refreshToken.delete({
         where: {
           token: refreshToken
         }
       })
-
-      //4. Tạo mới accessToken và refreshToken
-      return this.generateTokens({ userId })
+      // 4. Tạo mới accessToken và refreshToken
+      return await this.generateTokens({ userId })
     } catch (error) {
-      //Trường hợp đã refresh rồi, hãy thông báo cho user biết
-      //refresh Token của họ đã bị đánh cắp
+      // Trường hợp đã refresh token rồi, hãy thông báo cho user biết
+      // refresh token của họ đã bị đánh cắp
+      if (isNotFoundPrismaError(error)) {
+        throw new UnauthorizedException('Refresh token has been revoked')
+      }
+      throw new UnauthorizedException()
+    }
+  }
+
+  async logout(refreshToken: string) {
+    try {
+      // 1. Kiểm tra refreshToken có hợp lệ không
+      await this.tokenService.verifyRefreshToken(refreshToken)
+      // 2. Xóa refreshToken trong database
+      await this.prismaService.refreshToken.delete({
+        where: {
+          token: refreshToken
+        }
+      })
+      return { message: 'Logout successfully' }
+    } catch (error) {
+      // Trường hợp đã refresh token rồi, hãy thông báo cho user biết
+      // refresh token của họ đã bị đánh cắp
       if (isNotFoundPrismaError(error)) {
         throw new UnauthorizedException('Refresh token has been revoked')
       }
