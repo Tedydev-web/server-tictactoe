@@ -24,8 +24,8 @@ jobs:
             cd server-tictactoe
 
             # Pull the latest code from master branch
-            git fetch origin
-            git reset --hard origin/master
+            echo "${{ secrets.PASSWORD }}" | sudo -S git fetch origin
+            echo "${{ secrets.PASSWORD }}" | sudo -S git pull origin master
             echo "${{ secrets.PASSWORD }}" | sudo -S npm install
             echo "${{ secrets.PASSWORD }}" | sudo -S npm run build
 
