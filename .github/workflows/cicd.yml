@@ -1,14 +1,17 @@
-name: Nest Deployment
+name: NPH Digital Deployment
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      # - client
 
 jobs:
-  deploy:
+  deploy-server-only:
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy using ssh
+      - name: Deploy server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -16,39 +19,10 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
-            echo "🚀 Deploying FPTedu-tic-tac-toe..."
-            # Đi tới thư mục dự án
-            cd server-tictactoe || { echo "❌ Directory server-tictactoe not found"; exit 1; }
-            # Bắt buộc nhận code mới
-            echo "${{ secrets.PASSWORD }}" | sudo -S git config --global credential.helper store
-            # Use HTTPS instead of SSH
-            REPO_URL="https://github.com/[YOUR_USERNAME]/server-tictactoe.git"
-            # Check if origin exists
-            if git remote | grep -q "^origin$"; then
-              echo "${{ secrets.PASSWORD }}" | sudo -S git remote set-url origin $REPO_URL
-            else
-              echo "${{ secrets.PASSWORD }}" | sudo -S git remote add origin $REPO_URL
-            fi
-            # Set GitHub credentials for HTTPS
-            echo "${{ secrets.PASSWORD }}" | sudo -S git config --local credential.helper '!f() { echo "username=${{ secrets.GH_USERNAME }}"; echo "password=${{ secrets.GH_TOKEN }}"; }; f'
-            echo "${{ secrets.PASSWORD }}" | sudo -S git fetch origin master || { echo "❌ Failed to fetch code"; exit 1; }
-            echo "${{ secrets.PASSWORD }}" | sudo -S git reset --hard origin/master || { echo "❌ Failed to reset code"; exit 1; }
-            # Remaining steps...
-            # Sao chép .env.example thành .env nếu cần
-            if [ ! -f .env ] && [ -f .env.example ]; then
-              echo "${{ secrets.PASSWORD }}" | sudo -S cp .env.example .env
-              echo "✅ Copied .env.example to .env"
-            elif [ ! -f .env.example ]; then
-              echo "❌ .env.example does not exist"
-              exit 1
-            else
-              echo "✅ .env already exists, skipping copy"
-            fi
-            # Xóa node_modules và cài lại
-            echo "${{ secrets.PASSWORD }}" | sudo -S rm -rf node_modules package-lock.json
+            echo "🚀 Deploying server"
+            cd server-tictactoe
+            echo "${{ secrets.PASSWORD }}" | sudo -S git pull origin master
             echo "${{ secrets.PASSWORD }}" | sudo -S npm install
-            # Build ứng dụng
-            echo "${{ secrets.PASSWORD }}" | sudo -S npm run build || { echo "❌ Build failed"; exit 1; }
-            # Khởi động lại ứng dụng
-            pm2 restart website
-            echo "✅ Deployment completed"
+            echo "${{ secrets.PASSWORD }}" | sudo -S npm run build
+            pm2 reload 0
+            pm2 restart 0
