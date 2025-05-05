@@ -20,11 +20,11 @@ jobs:
             # Đi tới thư mục dự án
             cd server-tictactoe || { echo "❌ Directory server-tictactoe not found"; exit 1; }
             # Bắt buộc nhận code mới
-            git fetch origin master || { echo "❌ Failed to fetch code"; exit 1; }
-            git reset --hard origin/master || { echo "❌ Failed to reset code"; exit 1; }
+            echo "${{ secrets.PASSWORD }}" | sudo -S git fetch origin master || { echo "❌ Failed to fetch code"; exit 1; }
+            echo "${{ secrets.PASSWORD }}" | sudo -S git reset --hard origin/master || { echo "❌ Failed to reset code"; exit 1; }
             # Sao chép .env.example thành .env nếu cần
             if [ ! -f .env ] && [ -f .env.example ]; then
-              cp .env.example .env
+              echo "${{ secrets.PASSWORD }}" | sudo -S cp .env.example .env
               echo "✅ Copied .env.example to .env"
             elif [ ! -f .env.example ]; then
               echo "❌ .env.example does not exist"
@@ -32,16 +32,11 @@ jobs:
             else
               echo "✅ .env already exists, skipping copy"
             fi
-            # Ghi các biến môi trường từ GitHub Secrets vào .env
-            echo "PORT=3000" >> .env
-            echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> .env
-            echo "REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}" >> .env
-            echo "REFRESH_TOKEN_EXPIRES_IN=7d" >> .env
             # Xóa node_modules và cài lại
-            rm -rf node_modules package-lock.json
-            npm install
+            echo "${{ secrets.PASSWORD }}" | sudo -S rm -rf node_modules package-lock.json
+            echo "${{ secrets.PASSWORD }}" | sudo -S npm install
             # Build ứng** Build ứng dụng
-            npm run build || { echo "❌ Build failed"; exit 1; }
+            echo "${{ secrets.PASSWORD }}" | sudo -S npm run build || { echo "❌ Build failed"; exit 1; }
             # Khởi động lại ứng dụng
             pm2 restart website
             echo "✅ Deployment completed"
