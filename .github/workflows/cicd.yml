@@ -16,7 +16,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
-            echo "🚀 Deploying FPTedu-tic-tac-toe..."
+            echo "🚀 Deploying tic-tac-toe..."
             # Đi tới thư mục dự án
             cd server-tictactoe || { echo "❌ Directory server-tictactoe not found"; exit 1; }
             # Bắt buộc nhận code mới
