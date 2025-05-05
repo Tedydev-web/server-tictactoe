@@ -36,6 +36,10 @@ export function GameContainer({
 }: GameContainerProps) {
   return (
     <div className="w-full">
+      <GameResult 
+        status={gameStatus}
+        winner={gameStatus === 'won' ? (currentPlayer === 'X' ? player1Name : player2Name) : undefined}
+      />
       <GameInfo 
         currentPlayer={currentPlayer}
         player1Name={player1Name}
@@ -59,10 +63,7 @@ export function GameContainer({
         canUndo={canUndo}
       />
 
-      <GameResult 
-        status={gameStatus}
-        winner={gameStatus === 'won' ? (currentPlayer === 'X' ? player1Name : player2Name) : undefined}
-      />
+      
     </div>
   )
 }

@@ -2,17 +2,22 @@
 
 import { GameContainer } from '@/components/game/GameContainer'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useLocalGame } from '@/logic/singleplayer/local/useLocalGame'
 
 export default function LocalGamePage() {
-  const BOARD_SIZE = 30 // Kích thước mặc định cho singleplayer
-  
-  const dummyState = {
-    cells: Array(BOARD_SIZE * BOARD_SIZE).fill(null),
-    currentPlayer: 'X' as const,
-    gameStatus: 'playing' as const,
-    player1Score: 0,
-    player2Score: 0,
-  }
+  const {
+    cells,
+    currentPlayer,
+    gameStatus,
+    winningLine,
+    player1Score,
+    player2Score,
+    settings,
+    onCellClick,
+    onUndo,
+    canUndo,
+    onReset,
+  } = useLocalGame()
 
   return (
     <div className="space-y-8">
@@ -25,18 +30,18 @@ export default function LocalGamePage() {
         </CardHeader>
         <CardContent>
           <GameContainer 
-            cells={dummyState.cells}
-            onCellClick={() => {}}
-            currentPlayer={dummyState.currentPlayer}
-            gameStatus={dummyState.gameStatus}
+            cells={cells}
+            onCellClick={onCellClick}
+            currentPlayer={currentPlayer}
+            gameStatus={gameStatus}
             player1Name="Player 1"
             player2Name="Player 2"
-            onReset={() => {}}
-            onUndo={() => {}}
-            canUndo={false}
-            player1Score={dummyState.player1Score}
-            player2Score={dummyState.player2Score}
-            size={BOARD_SIZE}
+            onReset={onReset}
+            onUndo={onUndo}
+            canUndo={canUndo}
+            player1Score={player1Score}
+            player2Score={player2Score}
+            size={settings.boardSize}
           />
         </CardContent>
       </Card>

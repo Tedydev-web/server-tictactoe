@@ -9,7 +9,7 @@ export function GameResult({ status, winner }: GameResultProps) {
   if (status === 'playing') return null
 
   return (
-    <Card className="mt-8 bg-primary/5">
+    <Card className="mb-8 bg-primary/5">
       <CardContent className="pt-6">
         <div className="text-center">
           {status === 'won' ? (
