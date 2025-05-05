@@ -1,0 +1,26 @@
+﻿2025-05-05T03:29:41.8581503Z Current runner version: '2.323.0'
+2025-05-05T03:29:41.8606683Z ##[group]Operating System
+2025-05-05T03:29:41.8607494Z Ubuntu
+2025-05-05T03:29:41.8608227Z 24.04.2
+2025-05-05T03:29:41.8608883Z LTS
+2025-05-05T03:29:41.8609441Z ##[endgroup]
+2025-05-05T03:29:41.8610100Z ##[group]Runner Image
+2025-05-05T03:29:41.8610739Z Image: ubuntu-24.04
+2025-05-05T03:29:41.8611304Z Version: 20250427.1.0
+2025-05-05T03:29:41.8612435Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250427.1/images/ubuntu/Ubuntu2404-Readme.md
+2025-05-05T03:29:41.8613865Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250427.1
+2025-05-05T03:29:41.8614891Z ##[endgroup]
+2025-05-05T03:29:41.8615492Z ##[group]Runner Image Provisioner
+2025-05-05T03:29:41.8616188Z 2.0.435.1
+2025-05-05T03:29:41.8616795Z ##[endgroup]
+2025-05-05T03:29:41.8618089Z ##[group]GITHUB_TOKEN Permissions
+2025-05-05T03:29:41.8620226Z Contents: read
+2025-05-05T03:29:41.8620865Z Metadata: read
+2025-05-05T03:29:41.8621521Z Packages: read
+2025-05-05T03:29:41.8622403Z ##[endgroup]
+2025-05-05T03:29:41.8625280Z Secret source: Actions
+2025-05-05T03:29:41.8626048Z Prepare workflow directory
+2025-05-05T03:29:41.8934085Z Prepare all required actions
+2025-05-05T03:29:41.8971142Z Getting action download info
+2025-05-05T03:29:42.0902334Z Download action repository 'appleboy/ssh-action@master' (SHA:8745f9583c033551b991c73d76d23dd610c9f26e)
+2025-05-05T03:29:42.6567554Z Complete job name: deploy-server-only

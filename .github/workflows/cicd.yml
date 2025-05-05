@@ -14,36 +14,20 @@ jobs:
       - name: Deploy server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: 103.147.186.84
+          username: tedydev
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
             echo "🚀 Deploying server"
+            # Navigate to server directory
             cd server-tictactoe
 
-            # Set the correct repository URL
-            REPO_URL="https://github.com/Tedydev-web/server-tictactoe.git"
-
-            # Check current remote URL
-            echo "Current remote URL:"
-            git remote -v
-
-            # Update the remote URL if needed
-            echo "${{ secrets.PASSWORD }}" | sudo -S git remote set-url origin $REPO_URL
-
-            # Configure Git credentials if using HTTPS
-            echo "${{ secrets.PASSWORD }}" | sudo -S git config --local credential.helper store
-
-            # If you have GitHub credentials as secrets, use them
-            if [[ -n "${{ secrets.GH_USERNAME }}" && -n "${{ secrets.GH_TOKEN }}" ]]; then
-              echo "https://${{ secrets.GH_USERNAME }}:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
-              echo "${{ secrets.PASSWORD }}" | sudo -S chmod 600 ~/.git-credentials
-            fi
-
-            # Pull from the correct repository
-            echo "${{ secrets.PASSWORD }}" | sudo -S git pull origin master
+            # Pull the latest code from master branch
+            git fetch origin
+            git reset --hard origin/master
             echo "${{ secrets.PASSWORD }}" | sudo -S npm install
             echo "${{ secrets.PASSWORD }}" | sudo -S npm run build
-            pm2 reload 0
+
+            # Restart PM2 with sudo
             pm2 restart 0
