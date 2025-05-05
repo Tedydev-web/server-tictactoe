@@ -1,4 +1,4 @@
-name: Next Deployment
+name: Nest Deployment
 
 on:
   push:
