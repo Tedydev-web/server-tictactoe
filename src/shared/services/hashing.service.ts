@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { hash, compare } from 'bcrypt'
-
+import { compare, hash } from 'bcrypt'
 const saltRounds = 10
 
 @Injectable()

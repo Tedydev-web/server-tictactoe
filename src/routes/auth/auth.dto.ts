@@ -1,49 +1,39 @@
-import { Exclude } from 'class-transformer'
-import { IsString, Length } from 'class-validator'
-import { Match } from 'src/shared/decorators/custom-validator.decorator'
+import { createZodDto } from 'nestjs-zod'
+import {
+  DisableTwoFactorBodySchema,
+  ForgotPasswordBodySchema,
+  GetAuthorizationUrlResSchema,
+  LoginBodySchema,
+  LoginResSchema,
+  LogoutBodySchema,
+  RefreshTokenBodySchema,
+  RefreshTokenResSchema,
+  RegisterBodySchema,
+  RegisterResSchema,
+  SendOTPBodySchema,
+  TwoFactorSetupResSchema
+} from 'src/routes/auth/auth.model'
 
-export class LoginBodyDTO {
-  @IsString()
-  email: string
-  @IsString()
-  @Length(6, 20, { message: 'Mật khẩu phảu từ 6 đến 20 ký tự' })
-  password: string
-}
+export class RegisterBodyDTO extends createZodDto(RegisterBodySchema) {}
 
-export class LoginResDTO {
-  accessToken: string
-  refreshToken: string
+export class RegisterResDTO extends createZodDto(RegisterResSchema) {}
 
-  constructor(partial: Partial<LoginResDTO>) {
-    Object.assign(this, partial)
-  }
-}
+export class SendOTPBodyDTO extends createZodDto(SendOTPBodySchema) {}
 
-export class RegisterBodyDTO extends LoginBodyDTO {
-  @IsString()
-  name: string
-  @IsString()
-  @Match('password', { message: 'Mật khẩu không khớp' })
-  confirmPassword: string
-}
+export class LoginBodyDTO extends createZodDto(LoginBodySchema) {}
 
-export class RegisterResDTO {
-  id: number
-  email: string
-  name: string
-  @Exclude()
-  password: string
-  createdAt: Date
-  updatedAt: Date
+export class LoginResDTO extends createZodDto(LoginResSchema) {}
 
-  constructor(partial: Partial<RegisterResDTO>) {
-    Object.assign(this, partial)
-  }
-}
+export class RefreshTokenBodyDTO extends createZodDto(RefreshTokenBodySchema) {}
 
-export class RefreshTokenBodyDTO {
-  @IsString()
-  refreshToken: string
-}
+export class RefreshTokenResDTO extends createZodDto(RefreshTokenResSchema) {}
 
-export class RefreshTokenResDTO extends LoginResDTO {}
+export class LogoutBodyDTO extends createZodDto(LogoutBodySchema) {}
+
+export class GetAuthorizationUrlResDTO extends createZodDto(GetAuthorizationUrlResSchema) {}
+
+export class ForgotPasswordBodyDTO extends createZodDto(ForgotPasswordBodySchema) {}
+
+export class TwoFactorSetupResDTO extends createZodDto(TwoFactorSetupResSchema) {}
+
+export class DisableTwoFactorBodyDTO extends createZodDto(DisableTwoFactorBodySchema) {}

@@ -3,6 +3,11 @@
 /node_modules
 /build
 
+# Client directory
+/client/
+client/**/*
+client/
+
 # Logs
 logs
 *.log
